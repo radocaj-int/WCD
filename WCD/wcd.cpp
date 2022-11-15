@@ -6,12 +6,41 @@ extern "C"
 {
 #include"WCDCommon.h"
 
-    ULONG global_object;
+    ULONG global_object = 0;
+    KTIMER Timer;
+    KDPC TimerDpc;
+    bool isTimerRunning = false;
+
+    void OnTimerExpired(KDPC* Dpc, PVOID context, PVOID, PVOID)
+    {
+        UNREFERENCED_PARAMETER(Dpc);
+        UNREFERENCED_PARAMETER(context);
+
+        NT_ASSERT(KeGetCurrentIrql() == DISPATCH_LEVEL);
+        global_object++;
+        return;
+    }
+
+    void InitilizeTimer(ULONG msec)
+    {
+        KeInitializeTimerEx(&Timer, SynchronizationTimer);
+        KeInitializeDpc(&TimerDpc, OnTimerExpired, nullptr);
+
+        LARGE_INTEGER interval;
+        interval.QuadPart = -10000LL * msec;
+        KeSetTimerEx(&Timer, interval,10, &TimerDpc);
+        isTimerRunning = true;
+    }
 
     void
         DriverUnload(_In_ PDRIVER_OBJECT pdriver)
     {
         KdPrint(("WCD unload."));
+        KeFlushQueuedDpcs();
+        if (isTimerRunning)
+        {
+            KeCancelTimer(&Timer);
+        }
         UNICODE_STRING symLink = RTL_CONSTANT_STRING(L"\\??\\WCD");
         IoDeleteSymbolicLink(&symLink);
 
@@ -40,15 +69,13 @@ extern "C"
         switch (stack->Parameters.DeviceIoControl.IoControlCode) {
 
         case IOCTL_WCD_WRITE_ACCESS: {
-            ULONG tmp_write = global_object++;
-            KdPrint(("after writing global_object = %ul", tmp_write));
+            global_object++;
+            KdPrint(("after writing global_object = %ul", global_object));
             break;
         }
         case IOCTL_WCD_READ_ACCESS: {
-            ULONG tmp_read = global_object;
-            if (tmp_read)
-                KdPrint(("After reading, global_object =%ul", tmp_read));
-
+            KdPrint(("After reading, global_object =%ul", global_object));
+            InitilizeTimer(2);
             break;
         }
         case IOCTL_WCD_SET_THREAD_PRIORITY: {
