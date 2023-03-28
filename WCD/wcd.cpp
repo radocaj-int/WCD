@@ -28,7 +28,7 @@ extern "C"
 
         LARGE_INTEGER interval;
         interval.QuadPart = -10000LL * msec;
-        KeSetTimerEx(&Timer, interval,10, &TimerDpc);
+        KeSetTimerEx(&Timer, interval,0, &TimerDpc);
         isTimerRunning = true;
     }
 
