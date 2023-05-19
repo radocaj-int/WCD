@@ -12,3 +12,21 @@ find_package(WDK REQUIRED)
 wdk_add_driver(WCD KMDF 1.15
         wcd.cpp
 	)
+
+if (CREATE_CERT)
+    set( CERTIFICATE_ARGS -r -pe -ss PrivateCertStore -n CN=TestCertificate.com TestCertificate.cer )
+    add_custom_command(TARGET WCD POST_BUILD
+        COMMAND MakeCert.exe ARGS ${CERTIFICATE_ARGS}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BIN_DIR}
+        COMMENT "Creating test certificate."
+)
+endif()
+
+if (SIGN_DRIVER)
+    set(SIGN_ARGS sign /v /a /s PrivateCertStore /n TestCertificate.com /fd SHA256 /t http://timestamp.digicert.com $<CONFIG>//WCD.sys )
+    add_custom_command(TARGET WCD POST_BUILD
+        COMMAND signtool.exe ARGS ${SIGN_ARGS}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BIN_DIR}
+        COMMENT "Signing driver with test certificate."
+)
+endif()
