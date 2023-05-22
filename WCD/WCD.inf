@@ -7,7 +7,7 @@ Signature="$WINDOWS NT$"
 Class=System
 ClassGuid={4d36e97d-e325-11ce-bfc1-08002be10318}
 Provider=%ManufacturerName%
-DriverVer=
+DriverVer=19/05/2023,1.0.0.0
 CatalogFile=WCD.cat
 PnpLockdown=1
 
@@ -24,7 +24,7 @@ DefaultDestDir = 13
 
 
 [Manufacturer]
-%ManufacturerName%=Standard,NT$ARCH$
+%ManufacturerName%=Standard,NTAMD64
 
 [Standard.NT$ARCH$]
 
