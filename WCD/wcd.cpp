@@ -28,7 +28,7 @@ extern "C"
 
         LARGE_INTEGER interval;
         interval.QuadPart = -10000LL * msec;
-        KeSetTimerEx(&Timer, interval,10, &TimerDpc);
+        KeSetTimerEx(&Timer, interval,0 , &TimerDpc);
         isTimerRunning = true;
     }
 
@@ -75,7 +75,7 @@ extern "C"
         }
         case IOCTL_WCD_READ_ACCESS: {
             KdPrint(("After reading, global_object =%ul", global_object));
-            InitilizeTimer(2);
+            InitilizeTimer(5000);
             break;
         }
         case IOCTL_WCD_SET_THREAD_PRIORITY: {
