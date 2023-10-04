@@ -21,24 +21,24 @@ int main(int argc, const char* argv[])
 		return 0;
 	}
 	std::string arg_ = argv[1];
-	enum request_type type_;
+	enum request_type type_ = READ;
 	UserData data;
 	DWORD operation = 0;
 
 	if (arg_ == "-r") {
 		type_ = READ;
-		operation = IOCTL_WCD_READ_ACCESS;
+		operation = (DWORD)IOCTL_WCD_READ_ACCESS;
 	}
 	else if (arg_ == "-w") {
 		type_ = WRITE;
-		operation = IOCTL_WCD_WRITE_ACCESS;
+		operation = (DWORD)IOCTL_WCD_WRITE_ACCESS;
 	}
 	else if (arg_ == "-p") {
 		if (argc < 4) {
 			return error("Usage: WCDClient -p <threadid> <priority>");
 		}
 		type_ = PRIORITY;
-		operation = IOCTL_WCD_SET_THREAD_PRIORITY;
+		operation = (DWORD)IOCTL_WCD_SET_THREAD_PRIORITY;
 		data.ThreadId = atoi(argv[1]);
 		data.Priority = atoi(argv[2]);
 	}
