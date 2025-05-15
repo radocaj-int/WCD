@@ -18,11 +18,14 @@ extern "C"
 
         NT_ASSERT(KeGetCurrentIrql() == DISPATCH_LEVEL);
         global_object++;
+        isTimerRunning = false;
         return;
     }
 
-    void InitilizeTimer(ULONG msec)
+    void InitializeTimer(ULONG msec)
     {
+        if (isTimerRunning)
+            return;
         KeInitializeTimerEx(&Timer, SynchronizationTimer);
         KeInitializeDpc(&TimerDpc, OnTimerExpired, nullptr);
 
@@ -75,7 +78,7 @@ extern "C"
         }
         case IOCTL_WCD_READ_ACCESS: {
             KdPrint(("After reading, global_object =%ul", global_object));
-            InitilizeTimer(5000);
+            InitializeTimer(5000);
             break;
         }
         case IOCTL_WCD_SET_THREAD_PRIORITY: {
